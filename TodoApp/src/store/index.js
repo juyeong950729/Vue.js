@@ -1,4 +1,5 @@
 import { createStore } from "vuex";
+import axios from "axios";
 
 const store = createStore({
   state: {
@@ -14,16 +15,56 @@ const store = createStore({
     CLEAR_TODO(state) {
       state.todos = [];
     },
+    SET_TODOS(state, todos) {
+      todos.forEach((todo, index) => {
+        state.todos.push(todo);
+      });
+    },
   },
   actions: {
     addTodo(context, todo) {
-      context.commit("ADD_TODO", todo);
+      const params = {
+        content: todo,
+      };
+      axios
+        .post("http://localhost:8080/insert", params)
+        .then((response) => {
+          context.commit("ADD_TODO", todo);
+        })
+        .catch((error) => {
+          throw error;
+        });
     },
-    removeTodo(context, index) {
-      context.commit("REMOVE_TODO", index);
+    removeTodo(context, data) {
+      axios
+        .delete(`http://localhost:8080/delete/${data.id}`)
+        .then((response) => {
+          context.commit("REMOVE_TODO", data.index);
+        })
+        .catch((error) => {
+          throw error;
+        });
     },
     clearTodo(context) {
-      context.commit("CLEAR_TODO");
+      axios
+        .delete("http://localhost:8080/clear")
+        .then((response) => {
+          context.commit("CLEAR_TODO");
+        })
+        .catch((error) => {
+          throw error;
+        });
+    },
+    getTodos(context) {
+      axios
+        .get("http://localhost:8080/todos")
+        .then((response) => {
+          const todos = response.data;
+          context.commit("SET_TODOS", todos);
+        })
+        .catch((error) => {
+          throw error;
+        });
     },
   },
   getters: {

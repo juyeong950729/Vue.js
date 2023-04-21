@@ -1,13 +1,14 @@
 <template>
   <main>
     <ul>
-      <Item></Item>
+      <Item />
     </ul>
   </main>
 </template>
 
 <script>
 import Item from "./Item.vue";
+
 export default {
   name: "Main",
   components: {
