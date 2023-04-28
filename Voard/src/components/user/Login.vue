@@ -18,6 +18,7 @@
                     prepend-icon="mdi-account"
                     variant="underlined"
                     hide-details="true"
+                    v-model="user.uid"
                   ></v-text-field>
 
                   <v-text-field
@@ -25,14 +26,15 @@
                     prepend-icon="mdi-lock"
                     variant="underlined"
                     hide-details="true"
+                    v-model="user.pass"
                   ></v-text-field>
                 </v-col>
                 <v-col cols="4">
                   <v-btn
                     color="primary"
-                    height="80"
-                    block
-                    class="mt-4"
+                    width="90"
+                    height="90"
+                    class="mt-2"
                     @click="btnLogin"
                   >
                     로그인
@@ -52,16 +54,38 @@
 </template>
 
 <script setup>
+import { reactive } from "vue";
 import { useRouter } from "vue-router";
+import { useStore } from "vuex";
+import axios from "axios";
 
 const router = useRouter();
+const store = useStore();
+
+const user = reactive({
+  uid: null,
+  pass: null,
+});
 
 const btnRegister = () => {
   router.push("/user/terms");
 };
 
 const btnLogin = () => {
-  router.push("/list");
+  axios
+    .post("/user/login", user)
+    .then((response) => {
+      const accessToken = response.data.accessToken;
+      const user = response.data.user;
+
+      localStorage.setItem("accessToken", accessToken);
+      store.dispatch("setUser", user);
+
+      router.push("/list");
+    })
+    .catch((error) => {
+      console.log(error);
+    });
 };
 </script>
 

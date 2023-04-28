@@ -11,22 +11,24 @@
             variant="outlined"
             rows="10"
             hide-details="true"
-            model-value="내용입니다."
+            v-model="value.terms"
           ></v-textarea>
           <v-checkbox
             class="d-flex justify-end"
             label="동의합니다."
+            v-model="isCheck1"
           ></v-checkbox>
           <v-textarea
             label="개인정보취급방침"
             variant="outlined"
             rows="10"
             hide-details="true"
-            model-value="내용입니다."
+            v-model="value.privacy"
           ></v-textarea>
           <v-checkbox
             class="d-flex justify-end"
             label="동의합니다."
+            v-model="isCheck2"
           ></v-checkbox>
           <v-sheet class="text-center">
             <v-btn class="mr-2" @click="btnCancel">취소</v-btn>
@@ -39,15 +41,43 @@
 </template>
 
 <script setup>
+import axios from "axios";
+import { ref } from "vue";
+import { reactive, onBeforeMount } from "vue";
 import { useRouter } from "vue-router";
 
 const router = useRouter();
+const isCheck1 = ref(false);
+const isCheck2 = ref(false);
+
+const value = reactive({
+  terms: null,
+  privacy: null,
+});
+
+const btnNext = () => {
+  if (isCheck1.value && isCheck2.value) {
+    router.push("/user/register");
+  } else {
+    alert("동의 체크를 하셔야 합니다.");
+  }
+};
+
 const btnCancel = () => {
   router.push("/user/login");
 };
-const btnNext = () => {
-  router.push("/user/register");
-};
+
+onBeforeMount(() => {
+  axios
+    .get("/user/terms")
+    .then((response) => {
+      value.terms = response.data.terms;
+      value.privacy = response.data.privacy;
+    })
+    .catch((error) => {
+      console.log(error);
+    });
+});
 </script>
 
 <style scoped></style>
